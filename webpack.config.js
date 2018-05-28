@@ -37,6 +37,7 @@ const config = {
         }),
         new CleanWebpackPlugin(['dist']),
         new HTMLPlugin({
+            tittle:'测试tittle',
             filename: 'index.html',
             template: 'index.html',
             inject: 'body'
