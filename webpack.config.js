@@ -20,6 +20,12 @@ const config = {
                     'style-loader',
                     'css-loader'
                 ]
+            },
+            {
+                test: /\.(png|svg|jpg|gif)$/,
+                use: [
+                    'file-loader'
+                ]
             }
         ]
     },
@@ -31,9 +37,9 @@ const config = {
         }),
         new CleanWebpackPlugin(['dist']),
         new HTMLPlugin({
-          filename: 'index.html',
-          template: 'index.html',
-          inject: 'body'
+            filename: 'index.html',
+            template: 'index.html',
+            inject: 'body'
         })
     ]
 }

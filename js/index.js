@@ -1,3 +1,4 @@
+import '../js/flexible.js';
 import $ from 'jquery';
 import '../css/index.css';
 
