@@ -7,7 +7,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack')
 const config = {
     target: 'web',
-    entry: path.join(__dirname, 'js/index.js'),
+    entry: path.join(__dirname, 'src/main.js'),
     output: {
         filename: 'bundle.[hash:8].js',
         path: path.join(__dirname, 'dist')
@@ -26,6 +26,16 @@ const config = {
                 use: [
                     'file-loader'
                 ]
+            },
+            {
+              test: /\.js$/,
+              exclude: /(node_modules)/,
+              use: {
+                loader: 'babel-loader',
+                query: {
+                    presets: ["es2015"]
+                }
+              }
             }
         ]
     },
@@ -40,7 +50,14 @@ const config = {
             tittle:'测试tittle',
             filename: 'index.html',
             template: 'index.html',
-            inject: 'body'
+            inject: 'body',
+            minify: {
+                removeComments: true,
+                collapseWhitespace: true,
+                removeAttributeQuotes: true
+                // more options:
+                // https://github.com/kangax/html-minifier#options-quick-reference
+              }
         })
     ]
 }

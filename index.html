@@ -2,16 +2,17 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />    <meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="format-detection" content="telephone=no">
 	<meta name="format-detection" content="email=no">
 	<link rel="shortcut icon" href="http://www.eloancn.com/images/favicon.ico">
 	<title>出借得现金</title>
-	
 </head>
 <body>
-	<div class="box">
+    <div id="tip"></div>
+	<div class="box" id="app">
 		<div class="top">
 			<img src="../images/mobile/mobile_top.png" alt="top">
 		</div>
@@ -34,5 +35,34 @@
             <p class="copyRight">本次活动最终解释权归翼龙贷所有</p>
         </div>
 	</div>
+    <div class="gui-msk"></div>
+    <div class="formBody">
+        <div id="close"></div>
+        <div>
+            <input type="tel" id="mobile" placeholder="请输入手机号码">
+            <span class="clean"></span>
+        </div>
+        <div>
+            <div class="inputDiv">
+                <input type="text" id="yzm" placeholder="请输入图片验证码">
+            </div>
+            <div class="imgCode"><img class="codeImg" src="https://mstatic.eloancn.com/common/images/imgcd.png"></div>
+        </div>
+        <div>
+            <div class="inputDiv">
+                <input type="text" id="yzmg" placeholder="验证码">
+            </div>
+            <div class="btnCode">获取验证码</div>
+            <div class="wait_code none">60秒</div>
+        </div>
+        <div class="pas">
+            <input type="text" id="password" placeholder="请设置6-16位密码">
+        </div>
+        <div class="pImgDiv">
+            <img src="./images/agreeCk.png" class="pImg">
+            <div class="agreeTitle">我已同意<a href="http://mstatic.eloancn.com/protocol/reg.html">《翼龙贷注册协议》</a></div>
+            <div class="agreeTitle">已有账号，<span><a class="yellowFont" href="https://mobile.eloancn.com/static/mobileSite/login.html">去登录</a></span></div>
+        </div>
+    </div>
 </body>
 </html>
