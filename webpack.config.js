@@ -7,10 +7,11 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack')
 const config = {
     target: 'web',
-    entry: path.join(__dirname, 'src/main.js'),
+    entry: path.join(__dirname, './src/main.js'),
     output: {
         filename: 'bundle.[hash:8].js',
-        path: path.join(__dirname, 'dist')
+        path: path.join(__dirname, 'dist'),
+        publicPath:'/investAndGetMoney/'
     },
     module:{
         rules:[
@@ -39,6 +40,20 @@ const config = {
             }
         ]
     },
+    devtool: 'inline-source-map',
+    devServer: {
+        contentBase: './dist',
+        historyApiFallback: true,
+        hot: true,
+        port: 8001,
+        proxy: {
+          '/api': {
+            target: 'http://192.168.0.123/static',
+            changeOrigin: true,
+            pathRewrite: {'/api/' : ''},
+            secure: false
+          }
+    },
     plugins: [
         new webpack.DefinePlugin({
             'process.env': {
@@ -47,7 +62,6 @@ const config = {
         }),
         new CleanWebpackPlugin(['dist']),
         new HTMLPlugin({
-            tittle:'测试tittle',
             filename: 'index.html',
             template: 'index.html',
             inject: 'body',
@@ -55,8 +69,6 @@ const config = {
                 removeComments: true,
                 collapseWhitespace: true,
                 removeAttributeQuotes: true
-                // more options:
-                // https://github.com/kangax/html-minifier#options-quick-reference
               }
         })
     ]

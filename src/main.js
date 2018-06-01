@@ -3,7 +3,6 @@ import $ from 'jquery';
 import config from '../src/tools/config.js';
 import requestUtil from '../src/tools/jquery.request.js';
 import '../css/index.css';
-
 (function (j,r){
 	var parameter = {
 		platform : r.tools.GetQueryStringfnDES('platform'),
@@ -16,83 +15,66 @@ import '../css/index.css';
 	};
 	// 赋值给全局变量
 	var postData = parameter;
-	/*var countDown = function(count_fun, end_fun){
-		var that = this;
-		var auto = setInterval(function(){
-			that.count--;
-			if(that.count <= 0){
-				end_fun && end_fun.call(that);
-				clearInterval(auto);
-			};
-			count_fun && count_fun.call(that);
-		},1000)
-	};*/
-	var tools = {
-		count: 3,
-		phone_reg: /^((13[0-9])|(15[0-9])|(18[0-9])|147|199|17[013678])[0-9]{8}$/,
-		tip: j('#tip'),
-		checkPhone: function(number){
-			return this.phone_reg.test(number)
-		},
-		alertTip: function(content){
-			// 自动消失的弹窗
-			this.tip.text(content)
-			this.tip.show();
-			requestUtil.countDown.call(this,undefined,function(){
-				this.tip.hide();
-				this.count = 3;
-			});
-		}
-	};
-	var postEndData = {};
 	var invitUtil = {
 		invitBtn: j('#invitBtn'),
 		// 登录状态的标志
 		checkLoginStatus : false,
-		// 登录状态判断
-		checkLogin: function(){
-			var that = this;
-			r.postLayer(config.loginpath+'/common/v1/01',postData,function(res){
-				var jsonData = res || {};
-				var tip2 = jsonData.message;
-				if(jsonData.code != "0000"){
-					that.checkLoginStatus = false;
-				}else if(jsonData.code == "0000"){
-					that.checkLoginStatus = true;
-				}
-			})
+		hidePop(){
+			$(".gui-msk").hide();
+			$("#loginPop").hide();
+			$("#registerPop").hide();
 		},
-		// 去登陆
-		goToLogin : function(){
-			// alert(parameter.platform)  正常
-			if(postData.platform == 1){
-				share.skipToLogin();
-			}else if(postData.platform == 2){
-				//ios
-				skipToLogin();
+		showPop(type){
+			$(".gui-msk").show();
+			if(type == 'login'){
+				$("#loginPop").show();
+			}else{
+				$("#registerPop").show();
 			}
 		},
-		// 邀请好友按钮
-		invitBtnFun: function(){
-			j('#invitBtn').on('click',function(){
-				var oldUid = parameter.uid;
-				if(postData.platform == 1){
-					share.clickShare(config.shareTitle,config.shareDesc,config.shareUrl+"?uid="+oldUid,config.sharePicUrl);
-
-				}else if(postData.platform == 2){
-					if( typeof clickShare === 'function'){
-	  	 	  			clickShare(config.shareTitle,config.shareDesc,config.shareUrl+"?uid="+oldUid,config.sharePicUrl);
-	   	 			} else{
-								window.webkit.messageHandlers.clickShare.postMessage(
-										'{"title":"'+config.shareTitle+'","des":"'+config.shareDesc+'","url":"'+config.shareUrl+'?uid='+oldUid+'","picUrl":"'+config.sharePicUrl+'"}');
-
-						}
+		// 登录状态判断
+		checkLogin(){
+			var that = this;
+			return new Promise((reserv,reject)=>{
+				r.postLayer(config.loginpath+'/common/v1/01',postData,function(res){
+					reserv(res);
+				})
+			});
+		},
+		// 出借
+		investBtnFun(){
+			j('#invitBtn').on('click',()=>{
+				if(this.checkLoginStatus){
+					if(postData.platform == 1){
+						share.go();
+					}else if(postData.platform == 2){
+						window.webkit.messageHandlers.openPage.postMessage('{"tab":"1"}');
+					}
+				}else{
+					this.showPop('login');
 				}
 			})
 		},
-		init: function(){
-			var that = this;
-			that.invitBtnFun();
+		getUserInfo(){
+			r.postLayer({
+				url:'',
+				data:postData,
+				success:function(res){
+					console.log(res);
+				}
+			})
+		},
+		init(){
+			this.checkLogin().then((data)=>{
+				if(data.code !== '0000'){
+					this.checkLoginStatus = false;
+				}else{
+					this.checkLoginStatus = true;
+				}
+				this.investBtnFun();
+			}).catch(err=>{
+				console.log(err);
+			});
 		}
 	};
 	invitUtil.init();
@@ -115,10 +97,10 @@ var Bready = false;
 		count: 2,
 		phone_reg: /^((13[0-9])|(15[0-9])|(18[0-9])|147|199|17[013678])[0-9]{8}$/,
 		tip: j('#tip'),
-		checkPhone: function(number) {
+		checkPhone(number) {
 			return this.phone_reg.test(number);
 		},
-		alertTip: function(content) {
+		alertTip(content) {
 			// 这里面3秒后自动消失的tips
 			this.tip.text(content)
 			this.tip.show();
@@ -148,7 +130,7 @@ var Bready = false;
 		picture_verification:j('#picture_verification'),//图形验证码元素
 		inputuid: j("input[name='uid']"),//短信验证码input
 		// 刷新图片验证码
-		refreshImage: function() {
+		refreshImage() {
 			var phone_val = this.phone.val();
 			var platform=r.tools.GetQueryStringfnDES('platform')||4;
 			var	appid=r.tools.GetQueryStringfnDES('appid')||1;
@@ -161,10 +143,9 @@ var Bready = false;
 			this.img_code.attr('src', request_path+'/act01/v1/01?v=' + Math.random() + '&sendAddress=' + phone_val+'&platform='+platform+'&appid='+appid+'&device_token='+device_token);
 		},
 		// 注册信息
-		bindEvent: function() {
+		bindEvent() {
 			var that = this;
 			this.page_button.bind('click', function() {
-				// alert(Bready)
 				if(!Bready){
 					var phone_val = that.phone.val().trim();
 					if (!tools.checkPhone(phone_val)) {
@@ -177,35 +158,21 @@ var Bready = false;
 						return false;
 					};
 					var password_val = that.password.val().trim();
-
 					if (password_val == undefined || password_val == '' || password_val == null) {
-
 						tools.alertTip('请输入登录密码');
-
 						return false;
-
 					};
-
 					var reg  = /^[0-9a-zA-Z@#$!&*%^]{6,16}$/;
-
 					var flag = reg.test(password_val);
-
 					if(!flag){
-
 						tools.alertTip("密码由 6-16位字母、数字、特殊符号组成");
-
 						return false;
-
 					}
 					// 请同意翼龙贷手册
 					// if(!that.input_check.is(":checked")){
-
 					// 	tools.alertTip("请同意翼龙贷协议后注册");
-
 					// 	return false;
-
 					// }
-
 					// 渠道码
 					var ajl_sign=r.tools.GetQueryStringfn('jl_sign');
 					// 活动码
@@ -223,30 +190,20 @@ var Bready = false;
 						actCode:config.actCode1,
 						jl_sign:ajl_sign,
 						act_sign:aact_sign,
-
 					}, function(res) {
 						var jsonData = res || {};
-
 						var tip = jsonData.message;
-
 						if (jsonData.code != "0000") {
-
 							tools.alertTip(tip);
 							that.refreshImage();
-
 							return false;
-
 						}else if(jsonData.code == "0000"){
-
 							if(jsonData.data){
-
 								that.inputuid.data(jsonData.data);
-
 							}
 							var str1 = phone_val.slice(0,3);
 							var str2 = phone_val.slice(7,11);
 							var str_end = str1+"****"+str2;
-
 							j('#register-txt').html(str_end)
 							tools.alertTip('注册成功')
 							j('#main1').hide();
@@ -263,22 +220,13 @@ var Bready = false;
 			});
 			// 发送验证码不管
 			this.send_code.bind('touchstart', function() {
-				// alert(1)
-
 				var phone_val = that.phone.val();
-
 				if (!tools.checkPhone(phone_val)) {
-
 					tools.alertTip('请输入11位手机号码');
-
 					return false;
 				};
-
 				// 此处图形验证码有可能不用
-
 				if(JSON.parse(that.picture_verification_flag)){
-
-					//alert(JSON.parse(that.picture_verification_flag))
 					var icode_val = that.icode.val().trim();
 					if (icode_val == undefined || icode_val == '' || icode_val == null) {
 						tools.alertTip('请输入图形验证码');
@@ -301,7 +249,6 @@ var Bready = false;
 						return false;
 					};
 					r.hide();
-					// r.setLayerFlag(false);
 						that.randCode = icode_val;
 						that.send_code.hide();
 						that.wait_code.show();
@@ -315,26 +262,15 @@ var Bready = false;
 
 				}, '加载中');
 			});
-
 			this.input_close.bind('touchstart', function() {
-
 				that.phone.val("");
-
 				j(this).hide();
-
 			});
-
 			this.phone.focus(function() {
-
 				that.input_close.show();
 				that.refreshImage();
-
 			});
-
 			this.phone.blur(function() {
-
-				// that.refreshImage();
-
 				that.input_close.hide();
 			});
 			// 点击图片验证码刷新
@@ -346,24 +282,23 @@ var Bready = false;
 				that.refreshImage();
 			});
 		},
-		judge: function() {
+		judge() {
 			var u = navigator.userAgent, app = navigator.appVersion;
 			var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //android终端或者uc浏览器
 			var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
 			alert('是否是Android：'+isAndroid);
 			alert('是否是iOS：'+isiOS);
 		},
-		init: function() {
+		init() {
 			this.count = 60;
 			var that=this;
 			this.bindEvent();
 		    // 清空手机输入栏
 		    j('#phone_close').on('touchend',function(){
 		    	j('#page_phone').val('');
-		    	// alert(1);
 		    	return false;
 		    });
 		}
 	};
-	registerUtil.init();
+	// registerUtil.init();
 })($, requestUtil);
